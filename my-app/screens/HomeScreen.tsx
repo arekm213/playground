@@ -10,6 +10,7 @@ export default function HomeScreen({ navigation }: Props) {
       <Text style={styles.title}>Home</Text>
       <Button title="Go to Solar System" onPress={() => navigation.navigate('SolarSystem')} />
       <Button title="Go to Animated SVG" onPress={() => navigation.navigate('AnimatedSvg')} />
+      <Button title="Go to Bouncing Ball" onPress={() => navigation.navigate('BouncingBall')} />
     </View>
   );
 }

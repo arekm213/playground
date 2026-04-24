@@ -4,19 +4,24 @@ import { StatusBar } from 'expo-status-bar';
 import HomeScreen from './screens/HomeScreen';
 import SolarSystemScreen from './screens/SolarSystemScreen';
 import AnimatedSvgScreen from './screens/AnimatedSvgScreen';
+import BouncingBallScreen from './screens/BouncingBallScreen';
+import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import type { RootStackParamList } from './navigation/types';
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
 export default function App() {
   return (
-    <NavigationContainer>
-      <StatusBar style="auto" />
-      <Stack.Navigator>
-        <Stack.Screen name="Home" component={HomeScreen} />
-        <Stack.Screen name="SolarSystem" component={SolarSystemScreen} options={{ title: 'Solar System' }} />
-        <Stack.Screen name="AnimatedSvg" component={AnimatedSvgScreen} options={{ title: 'Animated SVG' }} />
-      </Stack.Navigator>
-    </NavigationContainer>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <NavigationContainer>
+        <StatusBar style="auto" />
+        <Stack.Navigator>
+          <Stack.Screen name="Home" component={HomeScreen} />
+          <Stack.Screen name="SolarSystem" component={SolarSystemScreen} options={{ title: 'Solar System' }} />
+          <Stack.Screen name="AnimatedSvg" component={AnimatedSvgScreen} options={{ title: 'Animated SVG' }} />
+          <Stack.Screen name="BouncingBall" component={BouncingBallScreen} options={{ title: 'Bouncing Ball' }} />
+        </Stack.Navigator>
+      </NavigationContainer>
+    </GestureHandlerRootView>
   );
 }
