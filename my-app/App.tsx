@@ -7,6 +7,7 @@ import AnimatedSvgScreen from './screens/AnimatedSvgScreen';
 import BouncingBallScreen from './screens/BouncingBallScreen';
 import BouncingBallSensorScreen from './screens/BouncingBallSensorScreen';
 import CustomKeyboardAvoidingViewScreen from './screens/CustomKeyboardAvoidingViewScreen';
+import FunTextInputScreen from './screens/FunTextInputScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import type { RootStackParamList } from './navigation/types';
 
@@ -24,6 +25,7 @@ export default function App() {
           <Stack.Screen name="BouncingBall" component={BouncingBallScreen} options={{ title: 'Bouncing Ball' }} />
           <Stack.Screen name="BouncingBallSensor" component={BouncingBallSensorScreen} options={{ title: 'Bouncing Ball Sensor' }} />
           <Stack.Screen name="CustomKeyboardAvoidingView" component={CustomKeyboardAvoidingViewScreen} options={{ title: 'Custom Keyboard Avoiding View' }} />
+          <Stack.Screen name="FunTextInput" component={FunTextInputScreen} options={{ title: 'Fun Text Input' }} />
         </Stack.Navigator>
       </NavigationContainer>
     </GestureHandlerRootView>

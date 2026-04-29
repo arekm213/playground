@@ -5,4 +5,5 @@ export type RootStackParamList = {
   BouncingBall: undefined;
   BouncingBallSensor: undefined;
   CustomKeyboardAvoidingView: undefined;
+  FunTextInput: undefined;
 };
