@@ -11,6 +11,8 @@ export default function HomeScreen({ navigation }: Props) {
       <Button title="Go to Solar System" onPress={() => navigation.navigate('SolarSystem')} />
       <Button title="Go to Animated SVG" onPress={() => navigation.navigate('AnimatedSvg')} />
       <Button title="Go to Bouncing Ball" onPress={() => navigation.navigate('BouncingBall')} />
+      <Button title="Go to Bouncing Ball Sensor" onPress={() => navigation.navigate('BouncingBallSensor')} />
+      <Button title="Go to Custom Keyboard Avoiding View" onPress={() => navigation.navigate('CustomKeyboardAvoidingView')} />
     </View>
   );
 }

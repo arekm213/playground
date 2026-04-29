@@ -3,4 +3,6 @@ export type RootStackParamList = {
   SolarSystem: undefined;
   AnimatedSvg: undefined;
   BouncingBall: undefined;
+  BouncingBallSensor: undefined;
+  CustomKeyboardAvoidingView: undefined;
 };
