@@ -1,4 +1,5 @@
 export type RootStackParamList = {
+  Chess: undefined;
   Home: undefined;
   SolarSystem: undefined;
   AnimatedSvg: undefined;

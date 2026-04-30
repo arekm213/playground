@@ -8,6 +8,7 @@ import BouncingBallScreen from './screens/BouncingBallScreen';
 import BouncingBallSensorScreen from './screens/BouncingBallSensorScreen';
 import CustomKeyboardAvoidingViewScreen from './screens/CustomKeyboardAvoidingViewScreen';
 import FunTextInputScreen from './screens/FunTextInputScreen';
+import ChessScreen from './screens/ChessScreen';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import type { RootStackParamList } from './navigation/types';
 
@@ -18,7 +19,8 @@ export default function App() {
     <GestureHandlerRootView style={{ flex: 1 }}>
       <NavigationContainer>
         <StatusBar style="auto" />
-        <Stack.Navigator>
+        <Stack.Navigator initialRouteName="Chess">
+          <Stack.Screen name="Chess" component={ChessScreen} options={{ title: 'Chess' }} />
           <Stack.Screen name="Home" component={HomeScreen} />
           <Stack.Screen name="SolarSystem" component={SolarSystemScreen} options={{ title: 'Solar System' }} />
           <Stack.Screen name="AnimatedSvg" component={AnimatedSvgScreen} options={{ title: 'Animated SVG' }} />
