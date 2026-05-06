@@ -1,10 +1,13 @@
-import { useCallback, useMemo, useState } from 'react';
-import { Pressable, StyleSheet, Text, useWindowDimensions, View } from 'react-native';
+import { useCallback, useEffect, useMemo, useState } from 'react';
+import { Pressable, StyleSheet, useWindowDimensions, View } from 'react-native';
 // @ts-expect-error — no types shipped
 import { Game } from 'js-chess-engine';
 import BoardColumnsRow from '../components/BoardColumnsRow';
 import BoardRowsColumn from '../components/BoardRowsColumn';
+import DraggablePiece from '../components/DraggablePiece';
 import WhiteKing from '../assets/pieces/wK.svg';
+import SadWhiteKing from '../assets/pieces/wK_sad.svg';
+import SadBlackKing from '../assets/pieces/bK_sad.svg';
 import WhiteQueen from '../assets/pieces/wQ.svg';
 import WhiteRook from '../assets/pieces/wR.svg';
 import WhiteBishop from '../assets/pieces/wB.svg';
@@ -17,10 +20,11 @@ import BlackBishop from '../assets/pieces/bB.svg';
 import BlackKnight from '../assets/pieces/bN.svg';
 import BlackPawn from '../assets/pieces/bP.svg';
 import type { ComponentType } from 'react';
+import Animated, { FadeOut, LightSpeedInLeft } from 'react-native-reanimated';
+import Svg, { Text as SvgText } from 'react-native-svg';
 import type { SvgProps } from 'react-native-svg';
 
-const COLUMNS = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H'] as const;
-const ROWS = [8, 7, 6, 5, 4, 3, 2, 1] as const;
+import { COLUMNS, ROWS } from '../components/chessCoords';
 
 const PIECE_COMPONENTS: Record<string, ComponentType<SvgProps>> = {
   K: WhiteKing, Q: WhiteQueen, R: WhiteRook, B: WhiteBishop, N: WhiteKnight, P: WhitePawn,
@@ -44,51 +48,83 @@ const useBoardDimensions = () => {
   }, [width]);
 };
 
+type GameState = {
+  turn: 'white' | 'black';
+  pieces: Record<string, string>;
+  moves: Record<string, string[]>;
+  check: boolean;
+  checkMate: boolean;
+  isFinished: boolean;
+};
+
 export default function ChessScreen() {
   const { cellSize, boardSize } = useBoardDimensions();
+  const innerSize = cellSize * 8;
+  const pieceSize = cellSize * 0.85;
 
   const [game] = useState(() => new Game());
-  const [, forceTick] = useState(0);
+  const [tick, setTick] = useState(0);
   const [selected, setSelected] = useState<string | null>(null);
+  const [draggingSquare, setDraggingSquare] = useState<string | null>(null);
+  const [failedDropCounter, setFailedDropCounter] = useState(0);
+  const [checkInfo, setCheckInfo] = useState<{ side: 'white' | 'black'; mate: boolean } | null>(null);
 
-  const state = useMemo(
-    () => game.exportJson() as { turn: 'white' | 'black'; pieces: Record<string, string>; check: boolean; checkMate: boolean; isFinished: boolean },
+  const state = useMemo<GameState>(
+    () => game.exportJson() as GameState,
     // eslint-disable-next-line react-hooks/exhaustive-deps
-    [game, selected],
+    [game, tick],
   );
 
-  const legalMoves: string[] = selected ? (game.moves(selected) as string[]) : [];
+  const legalMoves: string[] = selected ? state.moves[selected] ?? [] : [];
 
-  const onCellPress = (square: string) => {
+  useEffect(() => {
+    if (!state.check && !state.checkMate) return;
+    setCheckInfo({ side: state.turn, mate: state.checkMate });
+    if (state.checkMate) return;
+    const timer = setTimeout(() => setCheckInfo(null), 1000);
+    return () => clearTimeout(timer);
+  }, [state.check, state.checkMate, state.turn]);
+
+  const onCellPress = useCallback((square: string) => {
     const piece = state.pieces[square];
+    const isOwn = piece && isOwnPiece(piece, state.turn);
 
-    if (selected) {
-      if (selected === square) {
-        setSelected(null);
-        return;
-      }
-      if (legalMoves.includes(square)) {
-        game.move(selected, square);
-        setSelected(null);
-        forceTick((t) => t + 1);
-        return;
-      }
-      if (piece && isOwnPiece(piece, state.turn)) {
-        setSelected(square);
-        return;
-      }
+    if (selected === square) {
       setSelected(null);
       return;
     }
-
-    if (piece && isOwnPiece(piece, state.turn)) {
-      setSelected(square);
+    if (selected && (state.moves[selected] ?? []).includes(square)) {
+      game.move(selected, square);
+      setSelected(null);
+      setTick((t) => t + 1);
+      return;
     }
-  };
+    setSelected(isOwn ? square : null);
+  }, [state, selected, game]);
 
-  const renderSquare = useCallback(
+  const onDragStart = useCallback((square: string) => {
+    setSelected(square);
+    setDraggingSquare(square);
+  }, []);
+
+  const onDragEnd = useCallback((from: string, toCi: number, toRi: number) => {
+    setDraggingSquare(null);
+    if (toCi >= 0 && toCi < 8 && toRi >= 0 && toRi < 8) {
+      const to = `${COLUMNS[toCi]}${ROWS[toRi]}`;
+      const moves = state.moves[from] ?? [];
+      if (moves.includes(to)) {
+        game.move(from, to);
+        setSelected(null);
+        setTick((t) => t + 1);
+        return;
+      }
+    }
+    setSelected(null);
+    setFailedDropCounter((c) => c + 1);
+  }, [state, game]);
+
+  const renderCell = useCallback(
     (square: string, ri: number, ci: number) => {
-      const piece = state.pieces[square];
       const isDark = (ri + ci) % 2 === 1;
       const isSelected = selected === square;
       const isLegal = legalMoves.includes(square);
@@ -98,43 +134,96 @@ export default function ChessScreen() {
         : isLegal
           ? isDark ? '#a3aa45' : '#cdd26b'
           : baseColor;
-      const PieceSvg = piece ? PIECE_COMPONENTS[piece] : null;
+      const piece = state.pieces[square];
+      let pieceNode = null;
+      if (piece) {
+        const PieceSvg = PIECE_COMPONENTS[piece];
+        const isOwn = isOwnPiece(piece, state.turn);
+        const hasMoves = (state.moves[square]?.length ?? 0) > 0;
+        if (isOwn && hasMoves) {
+          pieceNode = (
+            <DraggablePiece
+              square={square}
+              cellSize={cellSize}
+              resetCounter={failedDropCounter}
+              onTap={onCellPress}
+              onDragStart={onDragStart}
+              onDragEnd={onDragEnd}
+            >
+              <PieceSvg width={pieceSize} height={pieceSize} />
+            </DraggablePiece>
+          );
+        } else {
+          pieceNode = (
+            <View pointerEvents="none">
+              <PieceSvg width={pieceSize} height={pieceSize} />
+            </View>
+          );
+        }
+      }
+      const isDraggingThis = draggingSquare === square;
       return (
         <Pressable
           key={square}
           onPress={() => onCellPress(square)}
-          style={[styles.cell, { width: cellSize, height: cellSize, backgroundColor: bg }]}
+          style={[
+            styles.cell,
+            { width: cellSize, height: cellSize, backgroundColor: bg },
+            isDraggingThis && { zIndex: 10 },
+          ]}
         >
-          {PieceSvg && <PieceSvg width={cellSize * 0.85} height={cellSize * 0.85} />}
+          {pieceNode}
         </Pressable>
       );
     },
-    [state, selected, legalMoves, cellSize, onCellPress],
+    [state, selected, legalMoves, cellSize, pieceSize, draggingSquare, failedDropCounter, onCellPress, onDragStart, onDragEnd],
   );
-
-  const statusText = state.checkMate
-    ? `Checkmate — ${state.turn === 'white' ? 'Black' : 'White'} wins`
-    : state.check
-      ? `${state.turn} in check`
-      : `${state.turn} to move`;
 
   const boardColumnsRow = <BoardColumnsRow cellSize={cellSize} boardSize={boardSize} labelSize={LABEL_SIZE} />;
   const boardRowsColumn = <BoardRowsColumn cellSize={cellSize} boardSize={boardSize} labelSize={LABEL_SIZE} />;
 
+  const renderCheckOverlay = () => {
+    if (!checkInfo) return null;
+    const sideName = checkInfo.side === 'white' ? 'White' : 'Black';
+    const text = `${sideName} ${checkInfo.mate ? 'checkmated' : 'in check'}`;
+    const SadKing = checkInfo.side === 'white' ? SadWhiteKing : SadBlackKing;
+    return (
+      <Animated.View
+        key={`${checkInfo.side}-${checkInfo.mate}`}
+        style={styles.checkOverlay}
+        pointerEvents="none"
+        entering={LightSpeedInLeft.duration(500)}
+        exiting={FadeOut.duration(250)}
+      >
+        <SadKing width={120} height={120} />
+        <Svg width={300} height={48} style={styles.checkSvgText}>
+          <SvgText x={150} y={32} fill="none" stroke="#000" strokeWidth={6} strokeLinejoin="round" fontSize={24} fontWeight="bold" textAnchor="middle">
+            {text}
+          </SvgText>
+          <SvgText x={150} y={32} fill="#fff" fontSize={24} fontWeight="bold" textAnchor="middle">
+            {text}
+          </SvgText>
+        </Svg>
+      </Animated.View>
+    );
+  };
+
   return (
     <View style={styles.container}>
-      <Text style={styles.status}>{statusText}</Text>
       {boardColumnsRow}
       <View style={styles.middleRow}>
         {boardRowsColumn}
-        <View style={[styles.board, { width: boardSize, height: boardSize }]}>
-          {ROWS.map((row, ri) =>
-            COLUMNS.map((col, ci) => renderSquare(`${col}${row}`, ri, ci)),
-          )}
+        <View style={[styles.boardBorder, { width: boardSize, height: boardSize }]}>
+          <View style={[styles.boardInner, { width: innerSize, height: innerSize }]}>
+            {ROWS.map((row, ri) =>
+              COLUMNS.map((col, ci) => renderCell(`${col}${row}`, ri, ci)),
+            )}
+          </View>
         </View>
         {boardRowsColumn}
       </View>
       {boardColumnsRow}
+      {renderCheckOverlay()}
     </View>
   );
 }
@@ -147,23 +236,32 @@ const styles = StyleSheet.create({
     justifyContent: 'center',
     gap: 8,
   },
-  status: {
-    color: '#fff',
-    fontSize: 18,
-    textTransform: 'capitalize',
-    marginBottom: 8,
-  },
   middleRow: {
     flexDirection: 'row',
   },
-  board: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
+  boardBorder: {
     borderWidth: 2,
     borderColor: '#000',
+  },
+  boardInner: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
   },
   cell: {
     alignItems: 'center',
     justifyContent: 'center',
+  },
+  checkOverlay: {
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    alignItems: 'center',
+    justifyContent: 'center',
+    zIndex: 100,
+  },
+  checkSvgText: {
+    marginTop: 10,
   },
 });
