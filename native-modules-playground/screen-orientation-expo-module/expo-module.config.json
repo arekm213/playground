@@ -1,0 +1,9 @@
+{
+  "platforms": ["apple", "android", "web"],
+  "apple": {
+    "modules": ["ScreenOrientationExpoModule"]
+  },
+  "android": {
+    "modules": ["expo.modules.screenorientationexpomodule.ScreenOrientationExpoModule"]
+  }
+}
