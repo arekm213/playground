@@ -17,6 +17,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.ComposeView
+import androidx.compose.ui.platform.ViewCompositionStrategy
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import expo.modules.kotlin.AppContext
@@ -25,6 +26,10 @@ import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.util.Locale
+import androidx.compose.animation.EnterExitState
+import androidx.compose.animation.core.animateDp
+import androidx.compose.animation.core.keyframes
+import androidx.compose.ui.draw.blur
 
 
 data class Digit(val digitChar: Char, val fullNumber: Double, val place: Int) {
@@ -49,6 +54,9 @@ class AnimatingNumbersExpoModuleView(context: Context, appContext: AppContext) :
   var value by mutableStateOf(0.0)
 
   private val composeView = ComposeView(context).apply {
+    setViewCompositionStrategy(
+        ViewCompositionStrategy.DisposeOnViewTreeLifecycleDestroyed
+    )
     layoutParams = LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT)
     setContent {
         Row(
@@ -72,8 +80,21 @@ class AnimatingNumbersExpoModuleView(context: Context, appContext: AppContext) :
                             }
                         }
                     ) { animatedDigit ->
+                        val blurRadius by transition.animateDp(
+                            label = "blur",
+                            transitionSpec = {
+                                keyframes {
+                                    durationMillis = 300
+                                    8.dp at 100
+                                    8.dp at 200
+                                }
+                            }
+                        ) { state ->
+                            if (state == EnterExitState.Visible) 0.dp else 8.dp
+                        }
                         Text(
                             "${animatedDigit.digitChar}",
+                            modifier = Modifier.blur(blurRadius),
                             style = MaterialTheme.typography.displayLarge,
                             textAlign = TextAlign.Center,
                         )
