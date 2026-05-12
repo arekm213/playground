@@ -20,12 +20,12 @@ import androidx.compose.ui.platform.ComposeView
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import expo.modules.kotlin.AppContext
-import expo.modules.kotlin.viewevent.EventDispatcher
 import expo.modules.kotlin.views.ExpoView
 import java.text.DecimalFormat
 import java.text.DecimalFormatSymbols
 import java.text.NumberFormat
 import java.util.Locale
+
 
 data class Digit(val digitChar: Char, val fullNumber: Double, val place: Int) {
     override fun equals(other: Any?): Boolean {
@@ -45,8 +45,6 @@ private val currencyFormatter: NumberFormat =
 
 class AnimatingNumbersExpoModuleView(context: Context, appContext: AppContext) :
   ExpoView(context, appContext) {
-
-  private val onLoad by EventDispatcher()
 
   var value by mutableStateOf(0.0)
 

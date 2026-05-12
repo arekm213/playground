@@ -2,7 +2,17 @@ import ExpoModulesCore
 import SwiftUI
 
 class CurrencyModel: ObservableObject {
-  @Published var value: Double = 0
+  @Published private var storedValue: Double = 0
+
+  var value: Double {
+    get { storedValue }
+    set {
+      guard storedValue != newValue else { return }
+      withAnimation {
+        storedValue = newValue
+      }
+    }
+  }
 }
 
 @available(iOS 17.0, *)
@@ -25,18 +35,11 @@ struct IncrementingCurrencyView: View {
         .bold()
     }
   }
-
-  func incrementValue(with amount: Double) {
-    withAnimation {
-      model.value += amount
-    }
-  }
 }
 
 class AnimatingNumbersExpoModuleView: ExpoView {
   let model = CurrencyModel()
   var hostingController: UIViewController?
-  let onLoad = EventDispatcher()
 
   required init(appContext: AppContext? = nil) {
     super.init(appContext: appContext)
