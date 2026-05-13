@@ -26,16 +26,18 @@ public class ScreenOrientationExpoModule: Module {
     }
 
     Function("getScreenOrientation") {
-      let scene = UIApplication.shared.connectedScenes
-        .first { $0.activationState == .foregroundActive } as? UIWindowScene
-      let orientation = scene?.interfaceOrientation ?? .portrait
-      return orientation.isLandscape ? "landscape" : "portrait"
+      return currentOrientation()
     }
   }
 
   @objc private func handleOrientationChange() {
-    let orientation = UIDevice.current.orientation
-    let value = orientation.isLandscape ? "landscape" : "portrait"
-    sendEvent("onScreenOrientationChange", ["orientation": value])
+    sendEvent("onScreenOrientationChange", ["orientation": currentOrientation()])
+  }
+
+  private func currentOrientation() -> String {
+    let scene = UIApplication.shared.connectedScenes
+      .first { $0.activationState == .foregroundActive } as? UIWindowScene
+    let orientation = scene?.interfaceOrientation ?? .portrait
+    return orientation.isLandscape ? "landscape" : "portrait"
   }
 }
