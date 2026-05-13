@@ -10,19 +10,6 @@
     "web": "expo start --web",
     "lint": "expo lint"
   },
-  "codegenConfig": {
-    "name": "NativeAppearanceSpec",
-    "type": "modules",
-    "jsSrcsDir": "specs",
-    "android": {
-      "javaPackageName": "com.nativeappearance"
-    },
-    "ios": {
-      "modulesProvider": {
-        "NativeAppearance": "RCTNativeAppearance"
-      }
-    }
-  },
   "dependencies": {
     "@react-navigation/elements": "^2.6.3",
     "@react-navigation/native": "^7.1.8",
