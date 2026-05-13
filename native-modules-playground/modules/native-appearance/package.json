@@ -1,0 +1,25 @@
+{
+  "name": "native-appearance",
+  "version": "0.0.0",
+  "description": "Appearance ",
+  "main": "src/index",
+  "codegenConfig": {
+    "name": "NativeAppearanceSpec",
+    "type": "modules",
+    "jsSrcsDir": "src"
+  },
+  "author": "“arekm213” <arek.mrowczyk@gmail.com> (https://github.com/arekm213)",
+  "license": "UNLICENSED",
+  "homepage": "https://github.com/arekm213/native-appearance#readme",
+  "create-react-native-library": {
+    "type": "turbo-module",
+    "languages": "kotlin-objc",
+    "tools": [
+      "eslint",
+      "jest",
+      "lefthook",
+      "release-it"
+    ],
+    "version": "0.62.0"
+  }
+}

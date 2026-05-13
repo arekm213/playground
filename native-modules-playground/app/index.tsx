@@ -1,29 +1,12 @@
-import { Alert, EventSubscription, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
 
-import NativeAppearance from '../specs/NativeAppearance';
-import { useCallback, useEffect, useRef, useState } from 'react';
-
-export const useColorScheme = () => {
- const [colorScheme, setColorScheme] = useState<string | null>(NativeAppearance.getColorScheme());
- const listenerSubscription = useRef<null | EventSubscription>(null);
-
- useEffect(() => {
-  const onSchemeChange = (pair: { key: string; value: string}) => {
-    setColorScheme(pair.value);
-  }
-  listenerSubscription.current = NativeAppearance?.onSchemeChange(onSchemeChange);
-  return  () => {
-    listenerSubscription.current?.remove();
-    listenerSubscription.current = null;
-  }
- }, [])
- return colorScheme
-}
+import { useColorScheme, getColorScheme } from 'native-appearance';
+import { useCallback } from 'react';
 
 export default function HomeScreen() {
   const colorScheme = useColorScheme();
   const getTheme = useCallback(() => {
-    const colorScheme = NativeAppearance.getColorScheme();
+    const colorScheme = getColorScheme();
     Alert.alert("colorScheme", `${colorScheme}`);
   }, [])
 
