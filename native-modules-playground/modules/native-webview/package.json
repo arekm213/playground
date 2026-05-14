@@ -1,0 +1,25 @@
+{
+  "name": "react-native-native-webview",
+  "version": "0.0.0",
+  "description": "native webview",
+  "main": "src/index",
+  "codegenConfig": {
+    "name": "NativeWebviewViewSpec",
+    "type": "all",
+    "jsSrcsDir": "src"
+  },
+  "author": "“arekm213” <arek.mrowczyk@gmail.com> (https://github.com/arekm213)",
+  "license": "UNLICENSED",
+  "homepage": "https://github.com/arekm213/react-native-native-webview#readme",
+  "create-react-native-library": {
+    "type": "fabric-view",
+    "languages": "kotlin-objc",
+    "tools": [
+      "eslint",
+      "jest",
+      "lefthook",
+      "release-it"
+    ],
+    "version": "0.62.0"
+  }
+}
