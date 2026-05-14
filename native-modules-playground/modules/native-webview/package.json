@@ -6,7 +6,17 @@
   "codegenConfig": {
     "name": "NativeWebviewViewSpec",
     "type": "all",
-    "jsSrcsDir": "src"
+    "jsSrcsDir": "src",
+    "android": {
+      "javaPackageName": "com.nativewebview"
+    },
+    "ios": {
+      "components": {
+        "NativeWebviewView": {
+          "className": "NativeWebviewView"
+        }
+      }
+    }
   },
   "author": "“arekm213” <arek.mrowczyk@gmail.com> (https://github.com/arekm213)",
   "license": "UNLICENSED",

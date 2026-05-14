@@ -1,4 +1,5 @@
 import { Alert, StyleSheet, Text, TouchableOpacity, View } from 'react-native';
+import { Link } from 'expo-router';
 
 import { useColorScheme, getColorScheme } from 'native-appearance';
 import { useCallback } from 'react';
@@ -13,7 +14,8 @@ export default function HomeScreen() {
   return (
     <View style={styles.container}>
       <Text>Current theme: {colorScheme}</Text>
-      <TouchableOpacity onPress={getTheme}><Text>Get theme!</Text></TouchableOpacity>
+      <TouchableOpacity onPress={getTheme}><Text style={styles.item}>Get theme!</Text></TouchableOpacity>
+      <Link href="/native-webview" style={styles.item}>Native WebView</Link>
     </View>
   );
 }

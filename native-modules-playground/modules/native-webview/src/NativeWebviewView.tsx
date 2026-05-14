@@ -1,7 +1,14 @@
-import type { ColorValue, ViewProps } from 'react-native';
+import type { NativeSyntheticEvent, ViewProps } from 'react-native';
+
+type WebViewScriptLoadedEvent = {
+  result: 'success' | 'error';
+};
 
 type Props = ViewProps & {
-  color?: ColorValue;
+  sourceURL?: string;
+  onScriptLoaded?: (
+    event: NativeSyntheticEvent<WebViewScriptLoadedEvent>
+  ) => void;
 };
 
 export function NativeWebviewView(_props: Props): never {

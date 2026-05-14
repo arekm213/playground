@@ -1,6 +1,5 @@
 package com.nativewebview
 
-import android.graphics.Color
 import com.facebook.react.module.annotations.ReactModule
 import com.facebook.react.uimanager.SimpleViewManager
 import com.facebook.react.uimanager.ThemedReactContext
@@ -30,9 +29,14 @@ class NativeWebviewViewManager : SimpleViewManager<NativeWebviewView>(),
     return NativeWebviewView(context)
   }
 
-  @ReactProp(name = "color")
-  override fun setColor(view: NativeWebviewView?, color: Int?) {
-    view?.setBackgroundColor(color ?: Color.TRANSPARENT)
+  @ReactProp(name = "sourceURL")
+  override fun setSourceURL(view: NativeWebviewView?, sourceURL: String?) {
+    if (view == null) return
+    if (sourceURL.isNullOrEmpty()) {
+      view.emitOnScriptLoaded(NativeWebviewView.OnScriptLoadedEventResult.error)
+      return
+    }
+    view.loadUrl(sourceURL)
   }
 
   companion object {
